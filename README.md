@@ -142,6 +142,18 @@ for 10+ minutes), and after the next full boot it's back to the mapped value. Th
 "randomly". (Waking from QuickBoot standby probably doesn't restart the app, but I haven't verified that.)
 For a permanent setting, pick it through the simple menu: CVBS → 0, AHD → 4.
 
+#### For people digging into the firmware
+
+- The override only runs when `CanFunc.IsCore()` returns 1, and that checks the string resource
+  `core_type_ == "8259"` inside `com.ts.MainUI`. The same check appears in **125 places** in the app (the CAN
+  integration code for many car brands, reverse-camera handling, …), so flipping it is not a safe way to switch
+  the override off.
+- The same boot path (`FsBaseActivity.CanSetBackcartype`) also uses the *Original Menu Resolution* setting.
+  For **CCC 400×250** (HostRes 6) it sets the MIPI user screen to 400×250 **and the AHD camera mode
+  (metazone `65605`) to 128**, on every cold boot. My guess, not verified: the HD (source 2) decoder path
+  captures the original BMW screen, which would explain why this profile sends the aftermarket AHD camera
+  through the AVM path, and why CamType 1/2/6/7 show nothing.
+
 ---
 
 ## Wiring the camera on an E90
